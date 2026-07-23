@@ -37,4 +37,8 @@ fcitx::AddonInstance *UniLumeFactory::create(fcitx::AddonManager *manager)
 
 } // namespace unilume::fcitx5
 
+#ifdef FCITX_ADDON_FACTORY_V2
 FCITX_ADDON_FACTORY_V2(unilume, unilume::fcitx5::UniLumeFactory)
+#else
+FCITX_ADDON_FACTORY(unilume::fcitx5::UniLumeFactory)
+#endif
