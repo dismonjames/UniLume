@@ -9,7 +9,9 @@ UniLume is still an experimental foundation.
 - Add regression vectors for punctuation, malformed sequences, macros and
   user keymaps without changing the engine algorithm.
 - Add continuous integration for current Linux compilers.
-- Define a small platform-adapter contract around the existing C API.
+- Review and approve the
+  [minimal Linux adapter proposal](linux-adapter-design.md), including its
+  opaque C context, C++23 wrapper, and backend-neutral edit contract.
 
 ## Later, after the foundation is verified
 
@@ -20,3 +22,8 @@ UniLume is still an experimental foundation.
 
 Large GUI, daemon, Wayland and system-hook work is intentionally outside this
 repository-preparation milestone.
+
+Implementation should follow the proposal milestones: contract tests and an
+opaque context first, then a C++23 wrapper and fake backend, followed by
+benchmark/fuzz work. Fcitx5 and IBus evaluation remains separate from backend
+implementation and packaging.
