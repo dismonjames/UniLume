@@ -1,0 +1,52 @@
+name: Benchmark Smoke
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark-smoke:
+    name: benchmark-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure
+        env:
+          CC: gcc
+          CXX: g++
+        run: |
+          cmake \
+            -S . \
+            -B build/benchmark-smoke \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DUNILUME_BUILD_BENCHMARKS=ON \
+            -DUNILUME_ENABLE_ASAN=ON \
+            -DUNILUME_ENABLE_UBSAN=ON
+
+      - name: Build benchmark
+        run: |
+          cmake \
+            --build build/benchmark-smoke \
+            --target unilume_core_benchmark \
+            --parallel 2
+
+      - name: Run benchmark smoke
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          build/benchmark-smoke/benchmarks/unilume_core_benchmark \
+            --smoke \
+            --format=json

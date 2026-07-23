@@ -14,6 +14,7 @@ include(CTest)
 
 option(UNILUME_ENABLE_ASAN "Enable AddressSanitizer for UniLume targets" OFF)
 option(UNILUME_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for UniLume targets" OFF)
+option(UNILUME_BUILD_BENCHMARKS "Build UniLume core benchmarks" OFF)
 
 add_library(unilume_sanitizer_options INTERFACE)
 
@@ -88,4 +89,8 @@ endif()
 
 if(BUILD_TESTING)
   add_subdirectory(tests)
+endif()
+
+if(UNILUME_BUILD_BENCHMARKS)
+  add_subdirectory(benchmarks)
 endif()

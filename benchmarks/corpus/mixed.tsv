@@ -1,0 +1,5 @@
+# name	method	input	expected UTF-8 output
+ascii_sentence	telex	chao mung ban den voi unilume	chao mung ban den voi unilume
+telex_and_url	telex	tieengs Vieetj http://abc.com/a1	tiếng Việt http://abc.com/a1
+email_and_unicode	telex	abc9@demo.com 日本語	abc9@demo.com 日本語
+code_and_numbers	telex	value_2 = item42;	value_2 = item42;

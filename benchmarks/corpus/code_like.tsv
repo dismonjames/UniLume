@@ -1,0 +1,8 @@
+# name	method	input	expected UTF-8 output
+# Expected output freezes current Telex core behavior; it is not a code-mode claim.
+cpp_vector	telex	std::vector<int>	std::vector<int>
+dotnet_write	telex	Console.WriteLine("hello");	Cốnle.ỬiteLine("hello");
+pointer_access	telex	foo_bar->value	foo_bả->value
+condition	telex	if (x >= 10 && y != 0)	ì (x >= 10 && y != 0)
+npm_command	telex	npm install	npm íntall
+git_command	telex	git commit -m "test"	git commit -m "tét"
