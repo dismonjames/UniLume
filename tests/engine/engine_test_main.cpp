@@ -17,6 +17,7 @@ int main()
     unilume::test::runViqrTests(engine, context);
     unilume::test::runEditingTests(engine, context);
     unilume::test::runInputTests(engine, context);
+    unilume::test::runUrlAndCodeInputTests(engine, context);
     unilume::test::runUnicodePassthroughTests(engine, context);
     unilume::test::runUnicodeInvalidInputTests(engine, context);
 

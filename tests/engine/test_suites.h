@@ -12,6 +12,7 @@ void runVniTests(EngineFixture &engine, TestContext &context);
 void runViqrTests(EngineFixture &engine, TestContext &context);
 void runEditingTests(EngineFixture &engine, TestContext &context);
 void runInputTests(EngineFixture &engine, TestContext &context);
+void runUrlAndCodeInputTests(EngineFixture &engine, TestContext &context);
 void runUnicodePassthroughTests(EngineFixture &engine, TestContext &context);
 void runUnicodeInvalidInputTests(EngineFixture &engine, TestContext &context);
 
