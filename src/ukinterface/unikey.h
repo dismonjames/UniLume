@@ -45,6 +45,11 @@ Key event handling:
 
   You should also call UnikeySetCapsState() before calling UnikeyFilter.
 
+  Only ASCII input is interpreted as Vietnamese key actions. For non-ASCII
+  input, UnikeyFilter resets the composition context and returns zero
+  backspaces and zero output bytes; the caller must forward the original
+  input unchanged.
+
   To make this module portable across platforms, UnikeyFilter should not
   be called on special keys: Enter, Tab, movement keys, delete, backspace...
 

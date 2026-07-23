@@ -140,6 +140,16 @@ void UnikeyCleanup()
 //--------------------------------------------
 void UnikeyFilter(unsigned int ch)
 {
+  // The legacy classifier treats bytes above ASCII as precomposed characters
+  // from single-byte code pages. UTF-8 adapters must preserve those bytes
+  // verbatim instead of feeding them into the Vietnamese state machine.
+  if (ch > 0x7f) {
+    MyKbEngine.reset();
+    UnikeyBackspaces = 0;
+    UnikeyBufChars = 0;
+    return;
+  }
+
   UnikeyBufChars = sizeof(UnikeyBuf);
   MyKbEngine.process(ch, UnikeyBackspaces, UnikeyBuf, UnikeyBufChars, UnikeyOutput);
 }

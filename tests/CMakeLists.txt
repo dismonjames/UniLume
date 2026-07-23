@@ -8,6 +8,8 @@ add_executable(unilume_engine_tests
   engine/telex_tests.cpp
   engine/test_support/engine_fixture.cpp
   engine/test_support/test_context.cpp
+  engine/unicode_invalid_input_tests.cpp
+  engine/unicode_passthrough_tests.cpp
   engine/vni_tests.cpp
   engine/viqr_tests.cpp
 )
