@@ -18,10 +18,13 @@ public:
     EngineFixture &operator=(const EngineFixture &) = delete;
 
     RunObservation run(const Scenario &scenario, bool measure_latency);
+    AggregateObservation runAggregate(const Scenario &scenario);
+    [[nodiscard]] const std::string &output() const;
 
 private:
     using Clock = std::chrono::steady_clock;
 
+    void begin(const Scenario &scenario);
     std::uint64_t process(const KeyEvent &event);
     void applyEngineOutput();
     void eraseUtf8Characters(int count);

@@ -23,6 +23,8 @@ add_executable(unilume_core_benchmark
   core/latency_benchmark.cpp
   core/main.cpp
   core/report_writer.cpp
+  core/rss_reader.cpp
+  core/soak_benchmark.cpp
   core/statistics.cpp
   core/system_metadata.cpp
   core/throughput_benchmark.cpp

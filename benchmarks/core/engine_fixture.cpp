@@ -37,10 +37,7 @@ EngineFixture::~EngineFixture()
 RunObservation EngineFixture::run(const Scenario &scenario,
                                   bool measure_latency)
 {
-    output_.clear();
-    UnikeyResetBuf();
-    UnikeySetInputMethod(scenario.method);
-    UnikeySetCapsState(0, 0);
+    begin(scenario);
 
     RunObservation observation;
     if (measure_latency) {
@@ -54,6 +51,30 @@ RunObservation EngineFixture::run(const Scenario &scenario,
     }
     observation.output = output_;
     return observation;
+}
+
+AggregateObservation EngineFixture::runAggregate(const Scenario &scenario)
+{
+    begin(scenario);
+    AggregateObservation observation;
+    observation.events = scenario.events.size();
+    for (const KeyEvent &event : scenario.events) {
+        observation.total_latency_ns += process(event);
+    }
+    return observation;
+}
+
+const std::string &EngineFixture::output() const
+{
+    return output_;
+}
+
+void EngineFixture::begin(const Scenario &scenario)
+{
+    output_.clear();
+    UnikeyResetBuf();
+    UnikeySetInputMethod(scenario.method);
+    UnikeySetCapsState(0, 0);
 }
 
 std::uint64_t EngineFixture::process(const KeyEvent &event)

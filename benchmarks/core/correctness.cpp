@@ -12,13 +12,20 @@ void validateObservation(const Corpus &corpus,
                          const Scenario &scenario,
                          const RunObservation &observation)
 {
-    if (observation.output != scenario.expected_output) {
+    validateOutput(corpus, scenario, observation.output);
+}
+
+void validateOutput(const Corpus &corpus,
+                    const Scenario &scenario,
+                    std::string_view output)
+{
+    if (output != scenario.expected_output) {
         throw std::runtime_error("output mismatch: " + corpus.name + "/" +
                                  scenario.name + " expected [" +
                                  scenario.expected_output + "] got [" +
-                                 observation.output + "]");
+                                 std::string(output) + "]");
     }
-    if (!isValidUtf8(observation.output)) {
+    if (!isValidUtf8(output)) {
         throw std::runtime_error("invalid UTF-8 output: " + corpus.name + "/" +
                                  scenario.name);
     }

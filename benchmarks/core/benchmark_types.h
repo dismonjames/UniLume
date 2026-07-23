@@ -38,4 +38,9 @@ struct RunObservation {
     std::vector<std::uint64_t> latency_ns;
 };
 
+struct AggregateObservation {
+    std::uint64_t events{};
+    std::uint64_t total_latency_ns{};
+};
+
 } // namespace unilume::benchmark

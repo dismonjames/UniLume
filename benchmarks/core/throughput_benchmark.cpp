@@ -6,8 +6,6 @@
 #include "correctness.h"
 #include "engine_fixture.h"
 
-#include <numeric>
-
 namespace unilume::benchmark {
 
 BenchmarkResult runThroughputBenchmark(EngineFixture &engine,
@@ -16,9 +14,10 @@ BenchmarkResult runThroughputBenchmark(EngineFixture &engine,
 {
     for (std::size_t iteration = 0;
          iteration < options.warmup_iterations;
-         ++iteration) {
+        ++iteration) {
         for (const Scenario &scenario : corpus.scenarios) {
-            validateObservation(corpus, scenario, engine.run(scenario, false));
+            engine.runAggregate(scenario);
+            validateOutput(corpus, scenario, engine.output());
         }
     }
 
@@ -28,14 +27,12 @@ BenchmarkResult runThroughputBenchmark(EngineFixture &engine,
     for (std::size_t iteration = 0; iteration < options.iterations;
          ++iteration) {
         for (const Scenario &scenario : corpus.scenarios) {
-            const RunObservation observation = engine.run(scenario, true);
-            validateObservation(corpus, scenario, observation);
-            total_nanoseconds +=
-                std::accumulate(observation.latency_ns.begin(),
-                                observation.latency_ns.end(),
-                                std::uint64_t{});
-            total_keys += observation.latency_ns.size();
-            checksum.add(observation.output);
+            const AggregateObservation observation =
+                engine.runAggregate(scenario);
+            validateOutput(corpus, scenario, engine.output());
+            total_nanoseconds += observation.total_latency_ns;
+            total_keys += observation.events;
+            checksum.add(engine.output());
             checksum.add(iteration);
         }
     }

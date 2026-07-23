@@ -7,6 +7,7 @@
 #include "engine_fixture.h"
 #include "latency_benchmark.h"
 #include "report_writer.h"
+#include "soak_benchmark.h"
 #include "system_metadata.h"
 #include "throughput_benchmark.h"
 
@@ -37,6 +38,9 @@ int runBenchmarks(const unilume::benchmark::BenchmarkOptions &options)
     for (const Corpus &burst : makeBurstCorpora()) {
         report.results.push_back(runLatencyBenchmark(engine, burst, options));
     }
+    if (options.soak || options.smoke) {
+        report.results.push_back(runSoakBenchmark(engine, corpora, options));
+    }
 
     std::ofstream file;
     std::ostream *output = &std::cout;
@@ -49,7 +53,11 @@ int runBenchmarks(const unilume::benchmark::BenchmarkOptions &options)
         output = &file;
     }
     writeReport(report, options.format, *output);
-    return EXIT_SUCCESS;
+    std::size_t errors = 0;
+    for (const BenchmarkResult &result : report.results) {
+        errors += result.errors;
+    }
+    return errors == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 } // namespace

@@ -67,6 +67,18 @@ void writeHuman(const BenchmarkReport &report, std::ostream &output)
                    << "  latency drift: "
                    << result.latency_stability_drift_percent << "%\n";
         }
+        if (result.has_rss) {
+            output << "  RSS KiB: initial=" << result.rss.initial_kib
+                   << " warmup=" << result.rss.after_warmup_kib
+                   << " final=" << result.rss.final_kib
+                   << " maximum=" << result.rss.maximum_kib << '\n'
+                   << "  RSS linear growth detected: "
+                   << (result.rss.linear_growth_detected ? "yes" : "no")
+                   << ", checkpoints=" << result.rss.checkpoints.size()
+                   << '\n'
+                   << "  checkpoint latency drift: "
+                   << result.latency_stability_drift_percent << "%\n";
+        }
     }
 }
 
@@ -80,6 +92,31 @@ void writeLatencyJson(const LatencyStatistics &latency, std::ostream &output)
            << ",\"max_ns\":" << latency.max_ns
            << ",\"mean_ns\":" << latency.mean_ns
            << ",\"stddev_ns\":" << latency.stddev_ns << '}';
+}
+
+void writeRssJson(const BenchmarkResult &result, std::ostream &output)
+{
+    if (!result.has_rss) {
+        output << "null";
+        return;
+    }
+    output << "{\"initial_kib\":" << result.rss.initial_kib
+           << ",\"after_warmup_kib\":" << result.rss.after_warmup_kib
+           << ",\"final_kib\":" << result.rss.final_kib
+           << ",\"maximum_kib\":" << result.rss.maximum_kib
+           << ",\"linear_growth_detected\":"
+           << (result.rss.linear_growth_detected ? "true" : "false")
+           << ",\"checkpoints\":[";
+    for (std::size_t index = 0; index < result.rss.checkpoints.size();
+         ++index) {
+        if (index != 0) {
+            output << ',';
+        }
+        output << "{\"keys\":" << result.rss.checkpoints[index].keys
+               << ",\"current_kib\":"
+               << result.rss.checkpoints[index].current_kib << '}';
+    }
+    output << "]}";
 }
 
 void writeJson(const BenchmarkReport &report, std::ostream &output)
@@ -112,7 +149,9 @@ void writeJson(const BenchmarkReport &report, std::ostream &output)
                << result.latency_stability_drift_percent
                << ",\"latency\":";
         writeLatencyJson(result.latency, output);
-        output << ",\"rss\":null}";
+        output << ",\"rss\":";
+        writeRssJson(result, output);
+        output << '}';
     }
     output << "]}\n";
 }
