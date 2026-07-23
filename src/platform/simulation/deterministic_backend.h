@@ -81,6 +81,7 @@ private:
     PendingReplacement pending_;
     std::size_t event_clock_{};
     std::size_t applied_events_{};
+    std::size_t text_character_count_{};
 };
 
 } // namespace unilume::integration::test

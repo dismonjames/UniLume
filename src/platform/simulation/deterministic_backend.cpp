@@ -10,6 +10,13 @@ DeterministicBackend::DeterministicBackend(BackendProfile profile)
     : profile_(profile)
 {
     text_.reserve(profile_.text_reserve_bytes);
+    if (profile_.text_reserve_bytes != 0) {
+        // Commit the reserved pages before RSS sampling. Otherwise a soak
+        // would report the simulated application's growing document buffer
+        // as controller memory growth.
+        text_.resize(profile_.text_reserve_bytes);
+        text_.clear();
+    }
 }
 
 bool DeterministicBackend::canReplace(
@@ -21,12 +28,11 @@ bool DeterministicBackend::canReplace(
     if (!profile_.surrounding_text_available ||
         profile_.stale_surrounding_text ||
         profile_.invalid_surrounding_text ||
-        profile_.cursor_misaligned ||
-        !core::isValidUtf8(text_)) {
+        profile_.cursor_misaligned) {
         return false;
     }
     return static_cast<std::size_t>(delete_before_cursor) <=
-           characterCount(text_);
+           text_character_count_;
 }
 
 platform::ReplacementStatus DeterministicBackend::requestReplacement(
@@ -148,11 +154,9 @@ std::size_t DeterministicBackend::appliedEvents() const
 bool DeterministicBackend::apply(std::int32_t delete_before_cursor,
                                  std::string_view commit_text)
 {
-    if (delete_before_cursor < 0 ||
-        !core::isValidUtf8(text_) ||
-        !core::isValidUtf8(commit_text) ||
+    if (delete_before_cursor < 0 || !core::isValidUtf8(commit_text) ||
         static_cast<std::size_t>(delete_before_cursor) >
-            characterCount(text_)) {
+            text_character_count_) {
         return false;
     }
     std::size_t position = text_.size();
@@ -161,6 +165,9 @@ bool DeterministicBackend::apply(std::int32_t delete_before_cursor,
     }
     text_.erase(position);
     text_.append(commit_text);
+    text_character_count_ -=
+        static_cast<std::size_t>(delete_before_cursor);
+    text_character_count_ += characterCount(commit_text);
     return true;
 }
 

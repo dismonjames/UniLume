@@ -107,8 +107,9 @@ IntegrationResult runProfile(std::string_view name, std::size_t keys)
     }
     warmup.drain();
 
-    std::vector<std::uint64_t> samples;
-    samples.reserve(keys);
+    // Materialize sample storage before the initial RSS reading so the
+    // benchmark measures runtime state growth, not its fixed result buffer.
+    std::vector<std::uint64_t> samples(keys);
     std::vector<double> checkpoint_means;
     checkpoint_means.reserve(10);
 
@@ -131,7 +132,7 @@ IntegrationResult runProfile(std::string_view name, std::size_t keys)
         const auto latency = static_cast<std::uint64_t>(
             std::chrono::duration_cast<std::chrono::nanoseconds>(end - start)
                 .count());
-        samples.push_back(latency);
+        samples[index] = latency;
         checkpoint_latency += latency;
         ++checkpoint_samples;
 
