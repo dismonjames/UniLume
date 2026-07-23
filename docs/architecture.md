@@ -26,11 +26,21 @@ provenance and reference but are not built by CMake. They depend on old
 X11/GTK2 interfaces and should not be presented as supported UniLume frontends.
 `third_party/imdkit/` is bundled third-party X11R6 code with separate notices.
 
-The only supported build artifact today is the static `unilume_engine`
-library used by tests. A future Linux adapter should remain a thin consumer of
-this API so engine behavior can continue to be tested without X11 or a GUI.
+The build now has three explicit layers: the inherited engine, an opaque
+per-context C facade in `src/ukinterface/`, and a C++23 direct-commit layer in
+`src/core/`. `DirectCommitController` assigns monotonic sequence IDs and
+applies delete-plus-commit as one bounded transaction. It rejects stale or
+duplicate completions and resets safely when the backend cannot establish a
+trustworthy replacement.
 
-The proposed boundary, event/output model, ownership rules, backend contract,
-and staged removal of per-context global state are documented in
-[linux-adapter-design.md](linux-adapter-design.md). This is a design proposal,
-not an implemented or supported desktop integration.
+`src/platform/simulation/` provides a deterministic backend for delayed,
+stale, reordered, dropped, and failed operations without a desktop session.
+The optional `src/fcitx5/` addon maps Fcitx events into the same controller and
+keeps one state object per Fcitx input context. It is an experimental Telex
+MVP, not a supported production frontend.
+
+The original proposal and boundary rationale remain in
+[linux-adapter-design.md](linux-adapter-design.md). Current test semantics and
+the addon limitations are documented in
+[integration-testing.md](integration-testing.md) and
+[fcitx5-addon.md](fcitx5-addon.md).
