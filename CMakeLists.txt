@@ -12,6 +12,36 @@ project(
 
 include(CTest)
 
+option(UNILUME_ENABLE_ASAN "Enable AddressSanitizer for UniLume targets" OFF)
+option(UNILUME_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for UniLume targets" OFF)
+
+add_library(unilume_sanitizer_options INTERFACE)
+
+if(UNILUME_ENABLE_ASAN OR UNILUME_ENABLE_UBSAN)
+  if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    message(FATAL_ERROR
+      "UniLume sanitizers require a GCC- or Clang-compatible compiler"
+    )
+  endif()
+
+  set(_unilume_sanitizers)
+  if(UNILUME_ENABLE_ASAN)
+    list(APPEND _unilume_sanitizers address)
+  endif()
+  if(UNILUME_ENABLE_UBSAN)
+    list(APPEND _unilume_sanitizers undefined)
+  endif()
+  list(JOIN _unilume_sanitizers "," _unilume_sanitizer_list)
+
+  target_compile_options(unilume_sanitizer_options INTERFACE
+    "-fsanitize=${_unilume_sanitizer_list}"
+    -fno-omit-frame-pointer
+  )
+  target_link_options(unilume_sanitizer_options INTERFACE
+    "-fsanitize=${_unilume_sanitizer_list}"
+  )
+endif()
+
 add_library(unilume_engine STATIC
   src/byteio/byteio.cpp
   src/vnconv/charset.cpp
@@ -25,6 +55,8 @@ add_library(unilume_engine STATIC
   src/ukengine/usrkeymap.cpp
   src/ukinterface/unikey.cpp
 )
+
+target_link_libraries(unilume_engine PRIVATE unilume_sanitizer_options)
 
 target_include_directories(unilume_engine
   PUBLIC
