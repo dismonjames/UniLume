@@ -50,6 +50,8 @@ stamp-h1
 *.gcov
 *.log
 *.profraw
+benchmark-results*.json
+benchmark-results*.csv
 /core
 /core.*
 vgcore.*
