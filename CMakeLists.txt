@@ -17,6 +17,7 @@ option(UNILUME_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for UniLume targe
 option(UNILUME_BUILD_BENCHMARKS "Build UniLume core benchmarks" OFF)
 option(UNILUME_BUILD_INTEGRATION_BENCHMARKS
   "Build UniLume adapter integration benchmarks" OFF)
+option(UNILUME_BUILD_FCITX5_ADDON "Build the experimental Fcitx5 addon" OFF)
 
 add_library(unilume_sanitizer_options INTERFACE)
 
@@ -76,6 +77,7 @@ set_target_properties(unilume_engine PROPERTIES
   CXX_STANDARD 98
   CXX_STANDARD_REQUIRED YES
   CXX_EXTENSIONS YES
+  POSITION_INDEPENDENT_CODE ON
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -111,6 +113,7 @@ set_target_properties(unilume_context PROPERTIES
   CXX_STANDARD 23
   CXX_STANDARD_REQUIRED YES
   CXX_EXTENSIONS NO
+  POSITION_INDEPENDENT_CODE ON
 )
 
 add_library(unilume_core STATIC
@@ -134,6 +137,7 @@ set_target_properties(unilume_core PROPERTIES
   CXX_STANDARD 23
   CXX_STANDARD_REQUIRED YES
   CXX_EXTENSIONS NO
+  POSITION_INDEPENDENT_CODE ON
 )
 
 if(BUILD_TESTING OR UNILUME_BUILD_INTEGRATION_BENCHMARKS)
@@ -163,4 +167,15 @@ endif()
 
 if(UNILUME_BUILD_BENCHMARKS OR UNILUME_BUILD_INTEGRATION_BENCHMARKS)
   add_subdirectory(benchmarks)
+endif()
+
+if(UNILUME_BUILD_FCITX5_ADDON)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(FCITX5_CORE QUIET IMPORTED_TARGET "Fcitx5Core>=5.0")
+  if(NOT FCITX5_CORE_FOUND)
+    message(FATAL_ERROR
+      "UNILUME_BUILD_FCITX5_ADDON=ON requires Fcitx5Core development files"
+    )
+  endif()
+  add_subdirectory(src/fcitx5)
 endif()
