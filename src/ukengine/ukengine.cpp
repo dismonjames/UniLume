@@ -1091,8 +1091,7 @@ int UkEngine::processMapChar(UkKeyEvent & ev)
 {
     int capsLockOn = 0;
     int shiftPressed = 0;
-    if (m_keyCheckFunc)
-        m_keyCheckFunc(&shiftPressed, &capsLockOn);
+    getKeyboardCase(&shiftPressed, &capsLockOn);
 
     if (capsLockOn)
         ev.vnSym = changeCase(ev.vnSym);
@@ -1173,13 +1172,11 @@ int UkEngine::processTelexW(UkKeyEvent & ev)
         return processAppend(ev);
 
     int ret;
-    static bool usedAsMapChar = false;
     int capsLockOn = 0;
     int shiftPressed = 0;
-    if (m_keyCheckFunc)
-        m_keyCheckFunc(&shiftPressed, &capsLockOn);
+    getKeyboardCase(&shiftPressed, &capsLockOn);
 
-    if (usedAsMapChar) {
+    if (m_usedAsMapChar) {
         ev.evType = vneMapChar;
         ev.vnSym = isupper(ev.keyCode)? vnl_Uh : vnl_uh;
         if (capsLockOn)
@@ -1189,7 +1186,7 @@ int UkEngine::processTelexW(UkKeyEvent & ev)
         if (ret == 0) {
             if (m_current >= 0)
                 m_current--;
-            usedAsMapChar = false;
+            m_usedAsMapChar = false;
             ev.evType = vneHookAll;
             return processHook(ev);
         }
@@ -1197,7 +1194,7 @@ int UkEngine::processTelexW(UkKeyEvent & ev)
     }
 
     ev.evType = vneHookAll;
-    usedAsMapChar = false;
+    m_usedAsMapChar = false;
     ret = processHook(ev);
     if (ret == 0) {
         if (m_current >= 0)
@@ -1207,7 +1204,7 @@ int UkEngine::processTelexW(UkKeyEvent & ev)
         if (capsLockOn)
             ev.vnSym = changeCase(ev.vnSym);
         ev.chType = ukcVn;
-        usedAsMapChar = true;
+        m_usedAsMapChar = true;
         return processMapChar(ev);
     }
     return ret;
@@ -1986,6 +1983,7 @@ void UkEngine::reset()
     m_keyCurrent = -1;
     m_singleMode = false;
     m_toEscape = false;
+    m_usedAsMapChar = false;
 }
 
 //------------------------------------------------
@@ -2008,9 +2006,12 @@ UkEngine::UkEngine()
     m_keyCurrent = -1;
     m_singleMode = false;
     m_keyCheckFunc = 0;
+    m_shiftPressed = 0;
+    m_capsLockOn = 0;
     m_reverted = false;
     m_toEscape = false;
     m_keyRestored = false;
+    m_usedAsMapChar = false;
 }
 
 //----------------------------------------------------
@@ -2051,8 +2052,7 @@ int UkEngine::macroMatch(UkKeyEvent & ev)
 {
     int capsLockOn = 0;
     int shiftPressed = 0;
-    if (m_keyCheckFunc)
-        m_keyCheckFunc(&shiftPressed, &capsLockOn);
+    getKeyboardCase(&shiftPressed, &capsLockOn);
 
     if (shiftPressed && (ev.keyCode ==' ' || ev.keyCode == ENTER_CHAR))
         return 0;
@@ -2341,4 +2341,15 @@ bool UkEngine::lastWordHasVnMark()
         }
     }
     return false;
+}
+
+//--------------------------------------------------
+void UkEngine::getKeyboardCase(int *shiftPressed, int *capsLockOn)
+{
+    if (m_keyCheckFunc) {
+        m_keyCheckFunc(shiftPressed, capsLockOn);
+        return;
+    }
+    *shiftPressed = m_shiftPressed;
+    *capsLockOn = m_capsLockOn;
 }

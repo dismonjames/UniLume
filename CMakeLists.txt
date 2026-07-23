@@ -87,6 +87,52 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   )
 endif()
 
+add_library(unilume_context STATIC
+  src/ukinterface/unilume_context.cpp
+)
+
+target_link_libraries(unilume_context PUBLIC
+  unilume_engine
+  unilume_sanitizer_options
+)
+
+target_include_directories(unilume_context
+  PUBLIC
+    src/ukinterface
+  PRIVATE
+    src/byteio
+    src/ukengine
+    src/vnconv
+)
+
+set_target_properties(unilume_context PROPERTIES
+  CXX_STANDARD 23
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+
+add_library(unilume_core STATIC
+  src/core/direct_commit_controller.cpp
+  src/core/engine_context.cpp
+  src/core/replacement_transaction.cpp
+)
+
+target_link_libraries(unilume_core PUBLIC
+  unilume_context
+  unilume_sanitizer_options
+)
+
+target_include_directories(unilume_core PUBLIC
+  src/core
+  src/platform
+)
+
+set_target_properties(unilume_core PROPERTIES
+  CXX_STANDARD 23
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
