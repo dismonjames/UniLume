@@ -1,0 +1,72 @@
+name: Nhiệm vụ kỹ thuật
+description: Đề xuất một công việc có phạm vi và tiêu chí hoàn thành rõ ràng.
+title: "[Task]: "
+labels:
+  - "type: task"
+  - "status: needs-triage"
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Mục tiêu
+      description: Kết quả cụ thể cần đạt được là gì?
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Phạm vi được phép sửa
+      description: Liệt kê file, module hoặc hành vi được phép thay đổi.
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Ngoài phạm vi
+      description: Nêu rõ những việc không được thực hiện trong nhiệm vụ này.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Tiêu chí hoàn thành
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Cách xác minh
+      description: Lệnh build, test hoặc kiểm tra thủ công bắt buộc.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: subsystem
+    attributes:
+      label: Subsystem liên quan
+      multiple: true
+      options:
+        - Engine
+        - Linux adapter
+        - Tests
+        - Build/CI
+        - Docs
+        - Legal
+        - Project
+    validations:
+      required: true
+
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Dependency hoặc blocker
+      description: Liệt kê dependency, quyết định hoặc Issue phải hoàn thành trước; ghi “không có” nếu không áp dụng.
+    validations:
+      required: true

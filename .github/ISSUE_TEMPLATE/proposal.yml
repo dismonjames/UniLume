@@ -1,0 +1,59 @@
+name: Đề xuất thay đổi
+description: Thảo luận thay đổi kiến trúc, hành vi hoặc hướng phát triển trước khi code.
+title: "[Proposal]: "
+labels:
+  - "type: proposal"
+  - "status: needs-triage"
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Vấn đề cần giải quyết
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Giải pháp đề xuất
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Lý do cần thay đổi
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Phương án thay thế
+      description: Các phương án đã cân nhắc và lý do chưa chọn.
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Ảnh hưởng tới compatibility
+      description: API, hành vi bộ gõ, dữ liệu hoặc môi trường Linux bị ảnh hưởng.
+    validations:
+      required: true
+
+  - type: textarea
+    id: licensing
+    attributes:
+      label: Ảnh hưởng tới giấy phép hoặc provenance
+      description: Nêu code bên thứ ba, nguồn gốc hoặc điều khoản liên quan; ghi “không có” nếu không áp dụng.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Phạm vi dự kiến
+      description: Module, tài liệu và test dự kiến thay đổi; nêu cả phần ngoài phạm vi.
+    validations:
+      required: true
