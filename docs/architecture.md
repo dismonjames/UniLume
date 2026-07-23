@@ -29,3 +29,8 @@ X11/GTK2 interfaces and should not be presented as supported UniLume frontends.
 The only supported build artifact today is the static `unilume_engine`
 library used by tests. A future Linux adapter should remain a thin consumer of
 this API so engine behavior can continue to be tested without X11 or a GUI.
+
+The proposed boundary, event/output model, ownership rules, backend contract,
+and staged removal of per-context global state are documented in
+[linux-adapter-design.md](linux-adapter-design.md). This is a design proposal,
+not an implemented or supported desktop integration.
