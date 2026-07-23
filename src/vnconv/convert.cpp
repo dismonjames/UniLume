@@ -1,0 +1,272 @@
+// -*- coding:unix; mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
+/*------------------------------------------------------------------------------
+VnConv: Vietnamese Encoding Converter Library
+UniKey Project: http://unikey.sourceforge.net
+Copyleft (C) 1998-2002 Pham Kim Long
+Contact: longp@cslab.felk.cvut.cz
+Modified for UniLume on 2026-07-23: safer temporary-file handling and
+modern compiler compatibility.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+--------------------------------------------------------------------------------*/
+
+#include "stdafx.h"
+#include "charset.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#if defined(_WIN32)
+	#include <io.h>
+	#include <fcntl.h>
+#else
+	#include <unistd.h>
+#endif
+
+#include "vnconv.h"
+
+int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf);
+
+DllExport int genConvert(VnCharset & incs, VnCharset & outcs, ByteInStream & input, ByteOutStream & output)
+{
+	StdVnChar stdChar;
+	int bytesRead, bytesWritten;
+
+	incs.startInput();
+	outcs.startOutput();
+
+	int ret = 1;
+	while (!input.eos()) {
+        stdChar = 0;
+		if (incs.nextInput(input, stdChar, bytesRead)) {
+			if (stdChar != INVALID_STD_CHAR) {
+			  if (VnCharsetLibObj.m_options.toLower)
+			    stdChar = StdVnToLower(stdChar);
+			  else if (VnCharsetLibObj.m_options.toUpper)
+			    stdChar = StdVnToUpper(stdChar);
+			  if (VnCharsetLibObj.m_options.removeTone)
+			    stdChar = StdVnGetRoot(stdChar);
+			  ret = outcs.putChar(output, stdChar, bytesWritten);
+			}
+		}
+		else break;
+	}
+	return (ret? 0 : VNCONV_OUT_OF_MEMORY);
+}
+
+//----------------------------------------------
+// Arguments:
+//       inCharset: charset of input
+//       outCharset: charset of output
+//       input: input data
+//       output: output data
+//       inLen: [in]  size of input. if inLen = -1, input data is null-terminated.
+//              [out] if input inLen != -1, output iLen is the numbers of byte left in input.
+//       maxOutLen: [in] size of output.
+//                  [out] number of bytes output, if enough memory
+//                        number of bytes needed for output, if not enough memory
+// Returns:  0 if successful
+//           error code: if failed
+//----------------------------------------------
+//int VnConvert(int inCharset, int outCharset, UKBYTE *input, UKBYTE *output, int & inLen, int & maxOutLen)
+
+DllExport int VnConvert(int inCharset, int outCharset, UKBYTE *input, UKBYTE *output, 
+	      int * pInLen, int * pMaxOutLen)
+{
+	int inLen, maxOutLen;
+	int ret = -1;
+
+	inLen = *pInLen;
+	maxOutLen = *pMaxOutLen;
+
+	if (inLen != -1 && inLen < 0) // invalid inLen
+		return ret;
+
+	VnCharset *pInCharset = VnCharsetLibObj.getVnCharset(inCharset);
+	VnCharset *pOutCharset = VnCharsetLibObj.getVnCharset(outCharset);
+
+	if (!pInCharset || !pOutCharset)
+		return VNCONV_INVALID_CHARSET;
+
+	StringBIStream is(input, inLen, pInCharset->elementSize());
+	StringBOStream os(output, maxOutLen);
+
+	ret = genConvert(*pInCharset, *pOutCharset, is, os);
+	*pMaxOutLen = os.getOutBytes();
+	*pInLen = is.left();
+	return ret;
+}
+
+//---------------------------------------
+// Arguments:
+//   inFile: input file name. NULL if STDIN is used
+//   outFile: output file name, NULL if STDOUT is used
+// Returns:
+//     0: successful
+//     errCode: if failed
+//---------------------------------------
+DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, const char *outFile)
+{
+	FILE *inf = NULL;
+	FILE *outf = NULL;
+	int ret = 0;
+	char *tmpName = NULL;
+
+	if (inFile == NULL) {
+		inf = stdin;
+#if defined(_WIN32)
+		_setmode( _fileno(stdin), _O_BINARY);
+#endif
+	}
+	else {
+		inf = fopen(inFile, "rb");
+		if (inf == NULL) {
+			ret = VNCONV_ERR_INPUT_FILE;
+			goto end;
+		}
+	}
+
+	if (outFile == NULL)
+		outf = stdout;
+	else {
+		// setup temporary output file (because real output file may be the same as input file
+		size_t outDirLen = strlen(outFile) + 1;
+		char *outDir = (char *)malloc(outDirLen);
+		if (outDir == NULL) {
+			fclose(inf);
+			ret = VNCONV_ERR_OUTPUT_FILE;
+			goto end;
+		}
+		memcpy(outDir, outFile, outDirLen);
+
+#if defined(_WIN32)
+		char *p = strrchr(outDir, '\\');
+#else
+		char *p = strrchr(outDir, '/');
+#endif
+
+		if (p == NULL)
+			outDir[0] = 0;
+		else
+			*p = 0;
+
+#if defined(_WIN32)
+		tmpName = tempnam(outDir, NULL);
+		if (tmpName != NULL)
+			outf = fopen(tmpName, "wb");
+#else
+		const char *tmpBase = ".unilume-vnconv-XXXXXX";
+		size_t tmpLen = strlen(outDir) + strlen(tmpBase) + 2;
+		tmpName = (char *)malloc(tmpLen);
+		if (tmpName != NULL) {
+			if (outDir[0] == 0)
+				snprintf(tmpName, tmpLen, "%s", tmpBase);
+			else
+				snprintf(tmpName, tmpLen, "%s/%s", outDir, tmpBase);
+			int tmpFd = mkstemp(tmpName);
+			if (tmpFd >= 0) {
+				outf = fdopen(tmpFd, "wb");
+				if (outf == NULL)
+					close(tmpFd);
+			}
+		}
+#endif
+		free(outDir);
+
+		if (tmpName == NULL || outf == NULL) {
+			fclose(inf);
+			if (tmpName != NULL) {
+				remove(tmpName);
+				free(tmpName);
+			}
+			ret = VNCONV_ERR_OUTPUT_FILE;
+			goto end;
+		}
+	}
+
+
+	ret = vnFileStreamConvert(inCharset, outCharset, inf, outf);
+	if (inf != stdin)
+		fclose(inf);
+	if (outf != stdout) {
+		fclose(outf);
+
+		// delete output file if exisits
+		if (ret == 0) {
+			remove(outFile);
+			if (rename(tmpName, outFile) != 0) {
+				remove(tmpName);
+				free(tmpName);
+				ret = VNCONV_ERR_OUTPUT_FILE;
+				goto end;
+			}
+		}
+		else 
+			remove(tmpName);
+		free(tmpName);
+	}
+
+end:
+#if defined(_WIN32)
+	if (inf == stdin) {
+		_setmode( _fileno(stdin), _O_BINARY);
+	}
+#endif
+	return ret;
+}
+
+//------------------------------------------------
+// Returns:
+//     0: successful
+//     errCode: if failed
+//---------------------------------------
+int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf)
+{
+	VnCharset *pInCharset = VnCharsetLibObj.getVnCharset(inCharset);
+	VnCharset *pOutCharset = VnCharsetLibObj.getVnCharset(outCharset);
+
+	if (!pInCharset || !pOutCharset)
+		return VNCONV_INVALID_CHARSET;
+
+	if (outCharset == CONV_CHARSET_UNICODE) {
+		UKWORD sign = 0xFEFF;
+		fwrite(&sign, sizeof(UKWORD), 1, outf);
+	}
+
+	FileBIStream is;
+	FileBOStream os;
+
+	is.attach(inf);
+	os.attach(outf);
+
+	return genConvert(*pInCharset, *pOutCharset, is, os);
+}
+
+char *ErrTable[VNCONV_LAST_ERROR] = 
+{"No error",
+ "Unknown error",
+ "Invalid charset",
+ "Error opening input file",
+ "Error opening output file",
+ "Error writing to output stream",
+ "Not enough memory",
+};
+
+DllExport const char * VnConvErrMsg(int errCode)
+{
+	if (errCode < 0 || errCode >= VNCONV_LAST_ERROR)
+		errCode = VNCONV_UNKNOWN_ERROR;
+	return ErrTable[errCode];
+}

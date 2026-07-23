@@ -1,0 +1,49 @@
+UniLume attribution and licensing notice
+========================================
+
+UniLume is an independent project based on the UniKey Input Engine and the
+x-unikey 1.0.4 source snapshot. It is not an official UniKey product and is
+not represented, endorsed, or sponsored by Pham Kim Long.
+
+Original UniKey/x-unikey work
+-----------------------------
+
+Copyright (C) 1998-2005 Pham Kim Long and the respective contributors.
+
+Pham Kim Long remains the author and copyright holder identified by the
+inherited source headers. Original notices have not been replaced. Historical
+credits are preserved in AUTHORS.md, ChangeLog, and the inherited source tree.
+
+Component terms found in this snapshot
+--------------------------------------
+
+* src/vnconv/, src/ukinterface/, and src/ukengine/keycons.h state GNU General
+  Public License version 2 or, at the recipient's option, any later version.
+* Most files in src/ukengine/ and src/platform/legacy/ state GNU Lesser
+  General Public License version 2 or, at the recipient's option, any later
+  version.
+* COPYING is retained verbatim from the source snapshot. It contains the GNU
+  Library General Public License, version 2 (the historical name of LGPL v2),
+  including its "or any later version" application notice.
+* Some inherited files do not contain an individual license header. Their
+  provenance appears to be the x-unikey snapshot, but their precise per-file
+  grant should be confirmed before a binary release.
+* third_party/imdkit/ contains third-party X11R6 IMdkit code with permissive
+  notices from Digital Equipment Corporation, Hewlett-Packard Company, Sun
+  Microsystems, Fujitsu Limited, the X Consortium, and individual authors.
+  Those notices in the source files apply and must be retained.
+
+The current unilume_engine build combines GPL-covered VnConv and interface
+code with LGPL-covered engine code. Distribution of that combined target is
+therefore under GPL-2.0-or-later, without changing the license of separable
+inherited components.
+
+UniLume additions
+-----------------
+
+New repository-level build files, tests, and documentation identify
+GPL-2.0-or-later with SPDX headers. No claim is made over code written by the
+original authors or third parties.
+
+No trademark rights are granted. The names UniKey and x-unikey are used only
+for attribution, historical description, and compatible API identifiers.

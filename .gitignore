@@ -1,0 +1,68 @@
+# CMake and build trees
+/build/
+/build-*/
+/cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+Testing/
+cmake_install.cmake
+compile_commands.json
+Makefile
+
+# C/C++ outputs
+*.a
+*.d
+*.dll
+*.dylib
+*.exe
+*.la
+*.lai
+*.lo
+*.loT
+*.o
+*.obj
+*.so
+*.so.*
+unilume
+unilume_engine_tests
+
+# Autotools/libtool generated state
+.deps/
+.libs/
+autom4te.cache/
+config.h
+config.log
+config.status
+libtool
+stamp-h1
+
+# Packages and archives
+*.deb
+*.rpm
+*.tar
+*.tar.*
+*.zip
+
+# Logs, crashes, coverage and temporary files
+*.gcda
+*.gcno
+*.gcov
+*.log
+*.profraw
+core
+core.*
+vgcore.*
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+
+# IDE and personal metadata
+.cache/
+.idea/
+.vscode/
+*.code-workspace
+*.user
