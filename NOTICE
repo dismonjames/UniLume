@@ -26,12 +26,19 @@ Component terms found in this snapshot
   Library General Public License, version 2 (the historical name of LGPL v2),
   including its "or any later version" application notice.
 * Some inherited files do not contain an individual license header. Their
-  provenance appears to be the x-unikey snapshot, but their precise per-file
-  grant should be confirmed before a binary release.
+  provenance has been verified against the published x-unikey 1.0.4 archive
+  (SHA-256
+  aa7dd444853538bcba0f24c4c19692c34d4553a1df213a260c2628a7116b2dd9),
+  but their precise per-file grant remains unresolved. Package context is not
+  treated as a substitute for a per-file grant.
 * third_party/imdkit/ contains third-party X11R6 IMdkit code with permissive
   notices from Digital Equipment Corporation, Hewlett-Packard Company, Sun
   Microsystems, Fujitsu Limited, the X Consortium, and individual authors.
   Those notices in the source files apply and must be retained.
+
+The reference archive, path mapping, exact comparisons, and unresolved file
+groups are documented in docs/provenance.md. No license header was added to
+inherited files as part of that audit.
 
 The current unilume_engine build combines GPL-covered VnConv and interface
 code with LGPL-covered engine code. Distribution of that combined target is

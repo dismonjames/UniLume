@@ -3,6 +3,10 @@
 This document records what is present in the imported x-unikey 1.0.4
 snapshot; it is not a new license grant and is not legal advice.
 
+The file-level comparison, upstream path mapping, checksums, and status
+definitions supporting this map are recorded in
+[provenance.md](provenance.md).
+
 | Path | Evidence in the repository | Working classification |
 | --- | --- | --- |
 | `src/vnconv/` | Most source headers say GPL version 2 or later | GPL-2.0-or-later |
@@ -22,14 +26,28 @@ name at version 2.1. The version number, the “or later” language, and the
 bundled `COPYING` support the common `LGPL-2.0-or-later` classification, but
 the naming mismatch should be reviewed by the maintainer or legal counsel.
 
-The following inherited groups include files without an individual license
-header: `src/byteio/`, several precompiled-header placeholders, and parts of
-`src/platform/legacy/`. They appear inside the x-unikey source snapshot and
-build graph, but this repository does not invent a per-file license for them.
+The provenance of the following headerless groups is **Verified** by exact
+comparison with the published x-unikey 1.0.4 archive:
 
-Some legacy XIM files contain copyright notices whose full permission text is
-not in the first header block. Their provenance and exact terms should also be
-verified before restoring that build.
+- all four files under `src/byteio/`;
+- `src/ukengine/stdafx.cpp` and `stdafx.h`;
+- the GTK/XIM `dummy.cpp` helpers and GTK `nls.h`;
+- XIM `ukopt.c`, `ukopt.h`, and the install/uninstall scripts.
+
+Their exact per-file license remains **Unresolved**. Package-level context
+strongly indicates copyleft intent, but it does not establish whether each
+file is GPL, Library/Lesser GPL, version 2 only, or version 2-or-later. No
+license header has been added.
+
+The legacy `IC.c`, `IC.h`, and the initial block of `xim.c` contain complete
+Sun Microsystems/Hewlett-Packard permission text, not copyright-only notices.
+`xim.c` additionally contains Pham Kim Long's LGPL version 2-or-later notice.
+These embedded terms are **Verified** and must remain intact.
+
+The official UniKey source page currently describes linked source code as GNU
+GPL, while the 1.0.4 archive contains GNU Library GPL version 2 and many files
+say GNU Lesser GPL version 2 or later. This evidence does not justify silently
+choosing one exact license for headerless files.
 
 ## Distribution consequence
 
@@ -41,3 +59,12 @@ terms. This does not relicense separable inherited files.
 `LICENSE` supplies GPL version 2 and `COPYING` preserves the bundled Library
 GPL version 2. Per-file third-party notices remain controlling where
 applicable.
+
+## Release gate
+
+Before enabling or distributing the historical GUI/XIM/GTK targets, resolve
+the headerless-file questions listed in `docs/provenance.md` or obtain legal
+review. The current engine target continues to be distributed under
+GPL-2.0-or-later because it includes files with explicit
+GPL-2.0-or-later notices; that combined-target conclusion does not relicense
+separable inherited files.
