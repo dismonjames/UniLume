@@ -198,7 +198,10 @@ IntegrationResult runProfile(std::string_view name, std::size_t keys)
     result.errors += result.pending_transaction;
     result.errors += result.queue_overflow_count != 0;
     result.errors += result.stale_callbacks != 0;
-    result.errors += result.rss.linear_growth_detected;
+    // Short sanitizer smoke runs can include lazy runtime page commitment.
+    // Treat RSS slope as a soak invariant only; smoke still reports it.
+    result.errors +=
+        keys >= 1'000'000 && result.rss.linear_growth_detected;
     if (name != "stale") {
         result.errors += result.aborted_transactions != 0;
     }
