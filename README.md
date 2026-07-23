@@ -2,9 +2,10 @@
 
 **Bộ gõ tiếng Việt hiện đại, nhẹ và nhanh cho Linux, phát triển trực tiếp từ lõi UniKey.**
 
-UniLume đang ở giai đoạn khởi tạo và mang tính thử nghiệm. Repository hiện cung
-cấp lõi xử lý tiếng Việt kế thừa, một API C tương thích và bộ test hồi quy nhỏ;
-chưa cung cấp ứng dụng bộ gõ có thể cài đặt để sử dụng hằng ngày.
+UniLume đang ở giai đoạn thử nghiệm. Repository cung cấp lõi xử lý tiếng Việt
+kế thừa, API C theo từng input context, bộ điều khiển direct-commit C++23,
+harness integration xác định và một addon Fcitx5 MVP tùy chọn. Addon chưa được
+coi là sẵn sàng để sử dụng hằng ngày.
 
 > UniLume là một dự án độc lập, được phát triển dựa trên UniKey Input Engine của Phạm Kim Long. UniLume không phải sản phẩm chính thức của UniKey và không được Phạm Kim Long đại diện hoặc bảo trợ.
 
@@ -13,14 +14,17 @@ chưa cung cấp ứng dụng bộ gõ có thể cài đặt để sử dụng h
 - Lõi UniKey/x-unikey 1.0.4 cho Telex, VNI và VIQR.
 - Xuất UTF-8 và các bộ chuyển đổi bảng mã kế thừa.
 - API xử lý phím, backspace, macro và keymap của x-unikey.
-- Build CMake tối thiểu cho thư viện tĩnh và test engine trên Linux.
+- Build CMake cho thư viện lõi, regression test và integration test trên Linux.
+- Harness mô phỏng surrounding text trễ/lỗi và benchmark backlog/RSS tùy chọn.
+- Addon Fcitx5 Telex/UTF-8 direct-commit thử nghiệm, mặc định không build.
 - Mã adapter XIM/GTK2 lịch sử trong `src/platform/legacy/` để tham khảo; các
   adapter này chưa nằm trong build mặc định.
 
 ## Chưa có
 
-- Executable hoặc giao diện UniLume dành cho người dùng cuối.
-- Tích hợp desktop Linux hiện đại, Wayland hoặc đóng gói distro.
+- GUI cấu hình, gói distro hoặc uinput fallback.
+- Xác minh tương thích đầy đủ trên terminal, Firefox, Electron, GTK và Qt.
+- Backend IBus hoặc tích hợp Wayland cấp hệ thống độc lập.
 - Cam kết tương thích, ổn định hay sẵn sàng cho production.
 
 ## Build và test
@@ -34,8 +38,9 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-Build tạo thư viện `unilume_engine` và executable test
-`unilume_engine_tests`; hiện chưa có lệnh chạy ứng dụng UniLume.
+Build mặc định tạo thư viện lõi và các executable test. Addon Fcitx5 chỉ được
+bật khi cấu hình `UNILUME_BUILD_FCITX5_ADDON=ON`; xem
+[docs/fcitx5-addon.md](docs/fcitx5-addon.md).
 
 Để chạy ASan và UBSan cục bộ:
 
@@ -56,6 +61,9 @@ Benchmark core được tắt mặc định. Cách build Release, chạy corpus,
 và chạy soak được mô tả trong
 [docs/benchmarks.md](docs/benchmarks.md). Các số core-only không phải phép so
 sánh với Lotus, fcitx5-unikey hoặc một integration desktop hoàn chỉnh.
+
+Cách chạy harness delayed/stale, burst, soak và benchmark integration được mô
+tả trong [docs/integration-testing.md](docs/integration-testing.md).
 
 ## Nguồn gốc và giấy phép
 

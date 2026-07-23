@@ -74,6 +74,11 @@ public:
     {
         m_keyCheckFunc = pFunc;
     }
+    void setCapsState(int shiftPressed, int capsLockOn)
+    {
+        m_shiftPressed = shiftPressed;
+        m_capsLockOn = capsLockOn;
+    }
 
     bool atWordBeginning();
 
@@ -122,6 +127,9 @@ protected:
     bool m_reverted;
     bool m_keyRestored;
     bool m_keyRestoring;
+    bool m_usedAsMapChar;
+    int m_shiftPressed;
+    int m_capsLockOn;
     UkOutputType m_outType;
   
     struct WordInfo {
@@ -159,6 +167,7 @@ protected:
     void synchKeyStrokeBuffer();
     bool lastWordIsNonVn();
     bool lastWordHasVnMark();
+    void getKeyboardCase(int *shiftPressed, int *capsLockOn);
 };
 
 void SetupUnikeyEngine();
