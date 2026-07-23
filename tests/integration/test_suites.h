@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#pragma once
+
+#include "test_assertions.h"
+
+namespace unilume::integration::test {
+
+void runImmediateTests(Assertions &assertions);
+void runDelayedTests(Assertions &assertions);
+void runDuplicateTests(Assertions &assertions);
+void runTransactionTests(Assertions &assertions);
+void runBurstTests(Assertions &assertions);
+void runSoakSmokeTests(Assertions &assertions);
+
+} // namespace unilume::integration::test
