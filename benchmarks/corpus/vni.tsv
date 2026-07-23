@@ -1,0 +1,8 @@
+# name	method	input	expected UTF-8 output
+basic_phrase	vni	tie61ng Vie65t	tiếng Việt
+vietnamese_letters	vni	A6 A8 E6 O6 O7 U7 D9	Â Ă Ê Ô Ơ Ư Đ
+replace_tone	vni	a12	à
+repeat_modifier	vni	a66	a6
+mixed_numbers	vni	2026-42	2026-42
+backspace	vni	tie61ng<BS>	tiến
+reset_context	vni	a8<RESET>1	ă1

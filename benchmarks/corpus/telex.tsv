@@ -1,0 +1,8 @@
+# name	method	input	expected UTF-8 output
+basic_phrase	telex	tieengs Vieetj	tiếng Việt
+natural_phrase	telex	tooi ddang gox tieengs vieetj	tôi đang gõ tiếng việt
+vietnamese_letters	telex	AS AW AA EE OO OW UW DD	Á Ă Â Ê Ô Ơ Ư Đ
+replace_tone	telex	asf	à
+repeat_modifier	telex	aaa	aa
+backspace	telex	tieengs<BS>	tiến
+reset_context	telex	aw<RESET>s	ăs

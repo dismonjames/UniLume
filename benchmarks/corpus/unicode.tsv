@@ -1,0 +1,8 @@
+# name	method	input	expected UTF-8 output
+emoji	telex	UniLume 🚀✨	UniLume 🚀✨
+japanese	telex	日本語	日本語
+korean	telex	한국어	한국어
+chinese	telex	中文输入	中文输入
+combining	telex	é	é
+precomposed_vietnamese	telex	Tiếng Việt	Tiếng Việt
+mixed	telex	ID 日本語 Ελληνικά 123	ID 日本語 Ελληνικά 123

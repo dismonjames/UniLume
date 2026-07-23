@@ -1,0 +1,8 @@
+# name	method	input	expected UTF-8 output
+basic_phrase	viqr	tie^'ng Vie^.t	tiếng Việt
+vietnamese_letters	viqr	A^ A( E^ O^ O+ U+ DD	Â Ă Ê Ô Ơ Ư Đ
+replace_tone	viqr	a'`	à
+repeat_modifier	viqr	a^^	a^
+escaped_modifier	viqr	a\^	a^
+backspace	viqr	tie^'ng<BS>	tiến
+reset_context	viqr	a(<RESET>'	ă'

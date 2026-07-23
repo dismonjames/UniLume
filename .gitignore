@@ -50,8 +50,8 @@ stamp-h1
 *.gcov
 *.log
 *.profraw
-core
-core.*
+/core
+/core.*
 vgcore.*
 *.bak
 *.orig

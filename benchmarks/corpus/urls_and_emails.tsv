@@ -1,0 +1,7 @@
+# name	method	input	expected UTF-8 output
+# Expected output freezes current Telex core behavior; it is not a URL-mode claim.
+reported_regression	telex	http://abc.com/a1	http://abc.com/a1
+github_repository	telex	https://github.com/dismonjames/UniLume	https://github.com/dímonjames/UniLume
+basic_email	telex	user@example.com	ủe@ẽample.com
+tagged_email	telex	hello.world+tag@example.org	hello.ửold+tag@ẽample.ỏg
+localhost	telex	localhost:8080/path?q=test	localhost:8080/path?q=tét
