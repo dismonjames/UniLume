@@ -1,0 +1,99 @@
+name: Báo lỗi
+description: Báo cáo hành vi sai hoặc regression có thể tái hiện.
+title: "[Bug]: "
+labels:
+  - "type: bug"
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cảm ơn bạn đã báo lỗi. Vui lòng cung cấp thông tin đủ để người khác có thể tái hiện và xác minh.
+
+  - type: checkboxes
+    id: duplicate
+    attributes:
+      label: Kiểm tra Issue trùng
+      options:
+        - label: Tôi đã tìm kiếm và không thấy Issue đang mở mô tả cùng lỗi này.
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Mô tả lỗi
+      description: Mô tả ngắn gọn lỗi và mức độ ảnh hưởng.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Cách tái hiện
+      description: Liệt kê các bước tối thiểu, dữ liệu nhập và cấu hình cần thiết.
+      placeholder: |
+        1. Cấu hình...
+        2. Gõ...
+        3. Quan sát...
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Hành vi hiện tại
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Hành vi mong muốn
+    validations:
+      required: true
+
+  - type: input
+    id: linux
+    attributes:
+      label: Môi trường Linux
+      description: Distro, phiên bản và kiến trúc.
+      placeholder: Ubuntu 24.04, x86_64
+    validations:
+      required: true
+
+  - type: input
+    id: desktop
+    attributes:
+      label: Desktop environment
+      placeholder: GNOME 46, KDE Plasma 6, hoặc không áp dụng
+    validations:
+      required: true
+
+  - type: dropdown
+    id: display_server
+    attributes:
+      label: Display server
+      options:
+        - X11
+        - Wayland
+        - Không áp dụng hoặc chưa rõ
+    validations:
+      required: true
+
+  - type: textarea
+    id: build
+    attributes:
+      label: Compiler và thông tin build
+      description: Cung cấp compiler, CMake, build type hoặc ghi “không áp dụng”.
+      placeholder: GCC 14.2, CMake 3.31, Debug
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log tối thiểu
+      description: Chỉ dán đoạn log liên quan; xóa token, đường dẫn riêng tư và dữ liệu nhạy cảm.
+      render: text
+    validations:
+      required: true

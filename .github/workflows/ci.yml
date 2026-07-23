@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: build-and-test (${{ matrix.compiler }}, ${{ matrix.build_type }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - gcc
+          - clang
+        build_type:
+          - Debug
+          - Release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Select compiler
+        shell: bash
+        run: |
+          if [[ "${{ matrix.compiler }}" == "gcc" ]]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+
+      - name: Configure
+        shell: bash
+        run: |
+          cmake \
+            -S . \
+            -B "build/${{ matrix.compiler }}-${{ matrix.build_type }}" \
+            -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" \
+            -DCMAKE_C_COMPILER="${CC}" \
+            -DCMAKE_CXX_COMPILER="${CXX}"
+
+      - name: Build
+        shell: bash
+        run: |
+          cmake \
+            --build "build/${{ matrix.compiler }}-${{ matrix.build_type }}" \
+            --parallel 2
+
+      - name: Test
+        shell: bash
+        run: |
+          ctest \
+            --test-dir "build/${{ matrix.compiler }}-${{ matrix.build_type }}" \
+            --output-on-failure
