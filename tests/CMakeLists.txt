@@ -15,7 +15,10 @@ add_executable(unilume_engine_tests
   engine/viqr_tests.cpp
 )
 
-target_link_libraries(unilume_engine_tests PRIVATE unilume_engine)
+target_link_libraries(unilume_engine_tests PRIVATE
+  unilume_engine
+  unilume_sanitizer_options
+)
 
 target_include_directories(unilume_engine_tests PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/engine
