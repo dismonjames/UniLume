@@ -33,13 +33,13 @@ set_target_properties(unilume_engine_tests PROPERTIES
 add_test(NAME engine COMMAND unilume_engine_tests)
 
 add_library(unilume_integration_test_support STATIC
-  integration/deterministic_backend.cpp
   integration/integration_fixture.cpp
   integration/test_assertions.cpp
 )
 
 target_link_libraries(unilume_integration_test_support PUBLIC
   unilume_core
+  unilume_integration_simulation
   unilume_sanitizer_options
 )
 

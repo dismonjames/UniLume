@@ -15,6 +15,8 @@ include(CTest)
 option(UNILUME_ENABLE_ASAN "Enable AddressSanitizer for UniLume targets" OFF)
 option(UNILUME_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for UniLume targets" OFF)
 option(UNILUME_BUILD_BENCHMARKS "Build UniLume core benchmarks" OFF)
+option(UNILUME_BUILD_INTEGRATION_BENCHMARKS
+  "Build UniLume adapter integration benchmarks" OFF)
 
 add_library(unilume_sanitizer_options INTERFACE)
 
@@ -115,6 +117,7 @@ add_library(unilume_core STATIC
   src/core/direct_commit_controller.cpp
   src/core/engine_context.cpp
   src/core/replacement_transaction.cpp
+  src/core/utf8_validation.cpp
 )
 
 target_link_libraries(unilume_core PUBLIC
@@ -133,10 +136,31 @@ set_target_properties(unilume_core PROPERTIES
   CXX_EXTENSIONS NO
 )
 
+if(BUILD_TESTING OR UNILUME_BUILD_INTEGRATION_BENCHMARKS)
+  add_library(unilume_integration_simulation STATIC
+    src/platform/simulation/deterministic_backend.cpp
+  )
+
+  target_link_libraries(unilume_integration_simulation PUBLIC
+    unilume_core
+    unilume_sanitizer_options
+  )
+
+  target_include_directories(unilume_integration_simulation PUBLIC
+    src/platform/simulation
+  )
+
+  set_target_properties(unilume_integration_simulation PROPERTIES
+    CXX_STANDARD 23
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+  )
+endif()
+
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
 
-if(UNILUME_BUILD_BENCHMARKS)
+if(UNILUME_BUILD_BENCHMARKS OR UNILUME_BUILD_INTEGRATION_BENCHMARKS)
   add_subdirectory(benchmarks)
 endif()

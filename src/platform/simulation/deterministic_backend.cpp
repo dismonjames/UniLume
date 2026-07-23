@@ -2,13 +2,14 @@
 
 #include "deterministic_backend.h"
 
-#include "test_assertions.h"
+#include "utf8_validation.h"
 
 namespace unilume::integration::test {
 
 DeterministicBackend::DeterministicBackend(BackendProfile profile)
     : profile_(profile)
 {
+    text_.reserve(profile_.text_reserve_bytes);
 }
 
 bool DeterministicBackend::canReplace(
@@ -21,7 +22,7 @@ bool DeterministicBackend::canReplace(
         profile_.stale_surrounding_text ||
         profile_.invalid_surrounding_text ||
         profile_.cursor_misaligned ||
-        !isValidUtf8(text_)) {
+        !core::isValidUtf8(text_)) {
         return false;
     }
     return static_cast<std::size_t>(delete_before_cursor) <=
@@ -50,8 +51,10 @@ platform::ReplacementStatus DeterministicBackend::requestReplacement(
         if (!apply(delete_before_cursor, commit_text)) {
             return platform::ReplacementStatus::failed;
         }
-        event_log_.push_back(
-            {sequence_id, delete_before_cursor, std::string(commit_text)});
+        if (profile_.record_event_log) {
+            event_log_.push_back(
+                {sequence_id, delete_before_cursor, std::string(commit_text)});
+        }
         ++applied_events_;
         return platform::ReplacementStatus::completed;
     }
@@ -97,11 +100,13 @@ std::vector<BackendCompletion> DeterministicBackend::advance(
     const bool success =
         apply(pending.delete_before_cursor, pending.commit_text);
     if (success) {
-        event_log_.push_back({
-            pending.sequence_id,
-            pending.delete_before_cursor,
-            pending.commit_text,
-        });
+        if (profile_.record_event_log) {
+            event_log_.push_back({
+                pending.sequence_id,
+                pending.delete_before_cursor,
+                pending.commit_text,
+            });
+        }
         ++applied_events_;
     }
     if (pending.reorder_callback) {
@@ -144,8 +149,8 @@ bool DeterministicBackend::apply(std::int32_t delete_before_cursor,
                                  std::string_view commit_text)
 {
     if (delete_before_cursor < 0 ||
-        !isValidUtf8(text_) ||
-        !isValidUtf8(commit_text) ||
+        !core::isValidUtf8(text_) ||
+        !core::isValidUtf8(commit_text) ||
         static_cast<std::size_t>(delete_before_cursor) >
             characterCount(text_)) {
         return false;

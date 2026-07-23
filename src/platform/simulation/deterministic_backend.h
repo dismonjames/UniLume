@@ -22,6 +22,8 @@ struct BackendProfile {
     bool duplicate_next_callback{};
     bool reorder_next_callback{};
     bool drop_next_callback{};
+    bool record_event_log{true};
+    std::size_t text_reserve_bytes{};
 };
 
 struct BackendCompletion {
