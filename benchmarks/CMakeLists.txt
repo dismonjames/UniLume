@@ -15,10 +15,17 @@ endif()
 
 add_executable(unilume_core_benchmark
   core/benchmark_options.cpp
+  core/burst_benchmark.cpp
   core/checksum.cpp
+  core/correctness.cpp
   core/corpus_loader.cpp
   core/engine_fixture.cpp
+  core/latency_benchmark.cpp
   core/main.cpp
+  core/report_writer.cpp
+  core/statistics.cpp
+  core/system_metadata.cpp
+  core/throughput_benchmark.cpp
 )
 
 target_link_libraries(unilume_core_benchmark PRIVATE
