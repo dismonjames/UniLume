@@ -44,6 +44,7 @@ struct BenchmarkResult {
     std::uint64_t checksum{};
     std::size_t errors{};
     double latency_stability_drift_percent{};
+    bool latency_growth_detected{};
     LatencyStatistics latency;
     bool has_rss{};
     RssMetrics rss;

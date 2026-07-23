@@ -9,6 +9,8 @@
 #include "statistics.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <numeric>
 
 namespace unilume::benchmark {
 namespace {
@@ -35,6 +37,35 @@ bool detectsLinearGrowth(const RssMetrics &rss)
         previous = checkpoint.current_kib;
     }
     return increasing_steps * 5 >= rss.checkpoints.size() * 4;
+}
+
+bool detectsLatencyGrowth(const std::vector<double> &checkpoint_means)
+{
+    if (checkpoint_means.size() < 6) {
+        return false;
+    }
+    std::size_t increasing_steps = 0;
+    for (std::size_t index = 1; index < checkpoint_means.size(); ++index) {
+        if (checkpoint_means[index] > checkpoint_means[index - 1]) {
+            ++increasing_steps;
+        }
+    }
+    const std::size_t midpoint = checkpoint_means.size() / 2;
+    const double first_half =
+        std::accumulate(checkpoint_means.begin(),
+                        checkpoint_means.begin() +
+                            static_cast<std::ptrdiff_t>(midpoint),
+                        0.0) /
+        static_cast<double>(midpoint);
+    const double second_half =
+        std::accumulate(checkpoint_means.begin() +
+                            static_cast<std::ptrdiff_t>(midpoint),
+                        checkpoint_means.end(),
+                        0.0) /
+        static_cast<double>(checkpoint_means.size() - midpoint);
+    return second_half > first_half * 1.25 &&
+           increasing_steps * 5 >=
+               (checkpoint_means.size() - 1) * 4;
 }
 
 } // namespace
@@ -111,7 +142,12 @@ BenchmarkResult runSoakBenchmark(EngineFixture &engine,
             std::max(result.rss.maximum_kib, checkpoint.current_kib);
     }
     result.rss.linear_growth_detected = detectsLinearGrowth(result.rss);
-    result.errors = result.rss.linear_growth_detected ? 1 : 0;
+    result.latency_growth_detected =
+        !options.smoke && detectsLatencyGrowth(checkpoint_means);
+    result.errors = (result.rss.linear_growth_detected ||
+                     result.latency_growth_detected)
+                        ? 1
+                        : 0;
     result.keys_per_second =
         static_cast<double>(result.total_keys) / result.total_seconds;
     result.iterations_per_second =

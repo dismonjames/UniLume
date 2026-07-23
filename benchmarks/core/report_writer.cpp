@@ -77,7 +77,10 @@ void writeHuman(const BenchmarkReport &report, std::ostream &output)
                    << ", checkpoints=" << result.rss.checkpoints.size()
                    << '\n'
                    << "  checkpoint latency drift: "
-                   << result.latency_stability_drift_percent << "%\n";
+                   << result.latency_stability_drift_percent << "%\n"
+                   << "  latency growth detected: "
+                   << (result.latency_growth_detected ? "yes" : "no")
+                   << '\n';
         }
     }
 }
@@ -147,6 +150,8 @@ void writeJson(const BenchmarkReport &report, std::ostream &output)
                << result.checksum << ",\"errors\":" << result.errors
                << ",\"latency_stability_drift_percent\":"
                << result.latency_stability_drift_percent
+               << ",\"latency_growth_detected\":"
+               << (result.latency_growth_detected ? "true" : "false")
                << ",\"latency\":";
         writeLatencyJson(result.latency, output);
         output << ",\"rss\":";
