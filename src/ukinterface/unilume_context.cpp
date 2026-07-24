@@ -45,7 +45,7 @@ void setDefaultOptions(UnikeyOptions &options)
     options.strictSpellCheck = 0;
     options.useIME = 0;
     options.spellCheckEnabled = 1;
-    options.autoNonVnRestore = 0;
+    options.autoNonVnRestore = 1;
 }
 
 UlStatus validateOutputArguments(char *output,

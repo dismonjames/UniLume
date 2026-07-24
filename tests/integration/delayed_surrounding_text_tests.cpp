@@ -24,7 +24,7 @@ void runDelayedTests(Assertions &assertions)
         "tôi",
         "tôi đang gõ tiếng việt",
         "http://abc.com/a1 tiếng",
-        "ủe9@ẽample.com tiếng",
+        "user9@example.com tiếng",
         "日本語 tiếng",
     };
 
