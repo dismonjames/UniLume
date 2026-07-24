@@ -58,7 +58,9 @@ add_executable(unilume_integration_tests
   integration/delayed_surrounding_text_tests.cpp
   integration/duplicate_text_tests.cpp
   integration/immediate_tests.cpp
+  integration/input_mode_policy_tests.cpp
   integration/integration_test_main.cpp
+  integration/preedit_fallback_tests.cpp
   integration/transaction_tests.cpp
 )
 
@@ -73,7 +75,16 @@ set_target_properties(unilume_integration_tests PROPERTIES
   CXX_EXTENSIONS NO
 )
 
-foreach(suite IN ITEMS immediate delayed duplicate transaction burst soak-smoke)
+foreach(suite IN ITEMS
+    immediate
+    delayed
+    duplicate
+    transaction
+    preedit-fallback
+    mode-policy
+    burst
+    soak-smoke
+)
   add_test(
     NAME "integration-${suite}"
     COMMAND unilume_integration_tests "${suite}"

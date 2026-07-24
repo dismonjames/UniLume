@@ -5,6 +5,7 @@ include(GNUInstallDirs)
 
 add_library(unilume_fcitx5 MODULE
   addon.cpp
+  diagnostic_trace.cpp
   fcitx_key_mapper.cpp
   fcitx_replacement_backend.cpp
   input_context_state.cpp

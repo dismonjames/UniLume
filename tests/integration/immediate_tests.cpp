@@ -26,7 +26,20 @@ void runImmediateTests(Assertions &assertions)
     assertions.equal(
         "URL email and code passthrough",
         url.output(),
-        "http://abc.com/a1 ủe@ẽample.com value_2");
+        "http://abc.com/a1 user@example.com value_2");
+
+    IntegrationFixture code;
+    code.type(
+        "std::vector<int> Console.WriteLine(\"hello\"); "
+        "foo_bar->value if (x >= 10 && y != 0) "
+        "npm install git commit -m \"test\"");
+    code.drain();
+    assertions.equal(
+        "code-like input passthrough",
+        code.output(),
+        "std::vector<int> Console.WriteLine(\"hello\"); "
+        "foo_bar->value if (x >= 10 && y != 0) "
+        "npm install git commit -m \"test\"");
 
     IntegrationFixture unicode;
     unicode.type("ID 日本語 한국어 中文 🚀");

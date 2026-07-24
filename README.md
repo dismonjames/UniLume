@@ -16,14 +16,16 @@ coi là sẵn sàng để sử dụng hằng ngày.
 - API xử lý phím, backspace, macro và keymap của x-unikey.
 - Build CMake cho thư viện lõi, regression test và integration test trên Linux.
 - Harness mô phỏng surrounding text trễ/lỗi và benchmark backlog/RSS tùy chọn.
-- Addon Fcitx5 Telex/UTF-8 direct-commit thử nghiệm, mặc định không build.
+- Addon Fcitx5 Telex/UTF-8 thử nghiệm với direct-commit khi surrounding text
+  đáng tin và fallback an toàn cho frontend bất đồng bộ, mặc định không build.
 - Mã adapter XIM/GTK2 lịch sử trong `src/platform/legacy/` để tham khảo; các
   adapter này chưa nằm trong build mặc định.
 
 ## Chưa có
 
 - GUI cấu hình, gói distro hoặc uinput fallback.
-- Xác minh tương thích đầy đủ trên terminal, Firefox, Electron, GTK và Qt.
+- Xác minh trên Wayland và ma trận ứng dụng/phân phối rộng hơn môi trường
+  KDE/X11 đã kiểm tra.
 - Backend IBus hoặc tích hợp Wayland cấp hệ thống độc lập.
 - Cam kết tương thích, ổn định hay sẵn sàng cho production.
 
@@ -64,6 +66,8 @@ sánh với Lotus, fcitx5-unikey hoặc một integration desktop hoàn chỉnh.
 
 Cách chạy harness delayed/stale, burst, soak và benchmark integration được mô
 tả trong [docs/integration-testing.md](docs/integration-testing.md).
+Kết quả cài user-local và kiểm tra ứng dụng desktop thực tế được ghi tại
+[docs/real-application-validation.md](docs/real-application-validation.md).
 
 ## Nguồn gốc và giấy phép
 

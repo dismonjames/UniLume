@@ -20,13 +20,17 @@ CTest separates engine regression from these integration suites:
 - `integration-delayed`;
 - `integration-duplicate`;
 - `integration-transaction`;
+- `integration-preedit-fallback`;
+- `integration-mode-policy`;
 - `integration-burst`;
 - `integration-soak-smoke`.
 
 The harness covers immediate replacement, 1/2/5/10/50-event delay, missing or
 stale surrounding text, invalid surrounding UTF-8, cursor mismatch,
 delete/commit failure, duplicate and reordered callback, dropped callback,
-focus reset, and bounded burst input. Delay is virtual; fault injection is
+focus reset, safe preedit fallback, path selection, and bounded burst input.
+The fallback suite repeats the Firefox/Chrome corpus to detect duplicated,
+lost, or reordered prefixes. Delay is virtual; fault injection is
 deterministic and repeatable.
 
 Every suite checks final output, valid UTF-8, bounded/final queue depth, and
