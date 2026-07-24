@@ -63,10 +63,12 @@ The `InputModePolicy` state machine chooses one of three paths:
    - The next composition re-evaluates the capability snapshot
 4. A full `reset()` (focus change) always returns to `unknown`.
 
-## Browser capability observations
+## Browser capability observations (X11 matrix)
 
-From the real-application validation
-(`docs/real-application-validation.md`) on KDE/X11 with Fcitx 5.1.12:
+The table below records real-application capability observations from
+`docs/real-application-validation.md` on a single environment (KDE/X11,
+Fcitx 5.1.12). These are empirical observations, not guarantees of behavior
+on other configurations.
 
 | Application | Toolkit | SurroundingText | Input path | Underline |
 | --- | --- | --- | --- | --- |
@@ -102,7 +104,7 @@ Browser engines:
   differ.
 - **Chrome:** Uses Aura (Linux) or Ozone (Wayland). On the tested X11 via GTK,
   Chrome's renderer process handled IME independently of the browser window's
-  GTK IM context, and `SurroundingText` was not advertised.
+  GTK IM context, and `SurroundingText` was not advertised in this environment.
 - **Electron/VS Code:** Inherits Chromium's IME architecture. Same observed
   behavior as Chrome in the tested environment.
 
