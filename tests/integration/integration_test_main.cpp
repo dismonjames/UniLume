@@ -28,6 +28,8 @@ int main(int argc, char **argv)
         runPreeditFallbackTests(assertions);
     } else if (suite == "browser-capability") {
         runBrowserCapabilityTests(assertions);
+    } else if (suite == "browser-input-session") {
+        runBrowserInputSessionTests(assertions);
     } else if (suite == "mode-policy") {
         runInputModePolicyTests(assertions);
     } else if (suite == "burst") {
