@@ -82,10 +82,12 @@ From the real-application validation
 | VSCode editor | Electron | Not available | Client preedit | Yes |
 | VSCode integrated terminal | Electron | Not available | Client preedit | Yes |
 
-**Key finding:** Firefox, Chrome, and Electron/VS Code do not set
-`CapabilityFlag::SurroundingText` on any tested context type. This flag never
-appears during the context lifetime, so these frontends permanently use the
-client-preedit fallback.
+**Key finding (Debian 13.6 / KDE Plasma / X11 matrix):** Firefox, Chrome, and
+Electron/VS Code did not advertise `CapabilityFlag::SurroundingText` on any
+context type observed in this environment. Those contexts remained on
+client-preedit fallback for the duration of the test session. Other frontend
+versions, desktop environments, or Wayland sessions may differ and remain
+unverified.
 
 ## Why browsers stay on client preedit
 
@@ -93,18 +95,22 @@ The `CapabilityFlag::SurroundingText` is controlled by the application (via
 Fcitx's input context protocol) or the IM module (XIM, Wayland text-input).
 Browser engines:
 
-- **Firefox:** Uses Gecko's own IM handling. Does not set `SurroundingText` in
-  any known context. The GTK IM module used by Firefox on X11 (`gtk-im-context`)
-  can provide surrounding text only if the widget requests it; Firefox's input
-  fields do not.
-- **Chrome:** Uses Aura (Windows/Linux) or Ozone (Wayland). On X11 via GTK,
-  Chrome's renderer process handles IME independently of the browser window's
-  GTK IM context. `SurroundingText` is never advertised.
-- **Electron/VS Code:** Inherits Chromium's IME architecture. Same limitation
-  as Chrome.
+- **Firefox:** Uses Gecko's own IM handling. In the tested X11 matrix, Firefox
+  did not advertise `SurroundingText`. The GTK IM module used by Firefox on X11
+  (`gtk-im-context`) can provide surrounding text only if the widget requests
+  it; Firefox's input fields did not do so in this environment. Wayland may
+  differ.
+- **Chrome:** Uses Aura (Linux) or Ozone (Wayland). On the tested X11 via GTK,
+  Chrome's renderer process handled IME independently of the browser window's
+  GTK IM context, and `SurroundingText` was not advertised.
+- **Electron/VS Code:** Inherits Chromium's IME architecture. Same observed
+  behavior as Chrome in the tested environment.
 
-This is not a UniLume limitation; it is an invariant of the browser/Electron
-frontend API contracts on Linux.
+This is not a UniLume limitation in the tested environment; the observed
+behavior reflects the frontend API contract as exercised by these applications
+on X11. Wayland, different browser versions, or alternative desktop
+environments may produce different capability signals and would need separate
+validation.
 
 ## Zero-preedit research
 
@@ -117,8 +123,10 @@ the replacement in one synchronous transaction. It requires valid, unselected
 surrounding text with a trustworthy cursor position and enough characters before
 the cursor.
 
-**Browser applicability:** Not possible. Browsers do not set
-`CapabilityFlag::SurroundingText`, so `canReplace()` always returns `false`.
+**Browser applicability in tested X11 matrix:** In the environments tested,
+browsers did not advertise `CapabilityFlag::SurroundingText`, so
+`canReplace()` returned `false`. Whether Wayland or future browser versions
+expose this capability is not yet known.
 
 ### B. Stable prefix commit
 
@@ -138,7 +146,8 @@ require either extending the C API or duplicating engine logic — both outside
 scope. Without that oracle, any guessed prefix could be incorrect, violating
 the primary correctness invariants (no lost, duplicate, or reordered text).
 
-**Verdict:** Not feasible without engine API changes. Deferred.
+**Verdict:** Not currently implementable safely with the existing engine API.
+Deferred for engine-interface research.
 
 ### C. Server-side preedit
 
@@ -146,37 +155,41 @@ Server-side preedit moves the preedit rendering from the client (browser) to
 Fcitx, removing the underline. UniLume attempted this during previous
 validation.
 
-**Result:** Rejected. Firefox 1 ms/key burst lost part of the Vietnamese
-sentence and the URL prefix. The timing dependency between server preedit
-updates and burst key events caused text loss that could not be resolved
-without sleep or retry workarounds.
+**Result in tested Firefox/X11 reproduction:** A Firefox 1 ms/key burst lost
+part of the Vietnamese sentence and the URL prefix. The timing dependency
+between server preedit updates and burst key events caused text loss that
+could not be resolved without sleep or retry workarounds.
 
-**Verdict:** Not safe. Kept rejected.
+**Verdict:** Rejected for the tested Firefox/X11 reproduction. Server-side
+preedit may behave differently on other frontends or compositors and has not
+been re-evaluated.
 
 ### Summary
 
-| Approach | Safe? | No underline? | Feasible now? |
+| Approach | Safe? | No underline? | Feasible in tested matrix? |
 | --- | --- | --- | --- |
-| A. Direct replacement | Yes | Yes (already works for Qt/GTK) | No for browsers |
-| B. Stable prefix | Uncertain | Partial | No — needs engine API |
-| C. Server-side preedit | No | Yes | Rejected — loses text |
+| A. Direct replacement | Yes | Yes (works for Qt/GTK) | No for browser contexts tested |
+| B. Stable prefix | Uncertain | Partial | Deferred — needs engine API |
+| C. Server-side preedit | No (tested Firefox/X11) | Yes | Rejected for tested reproduction |
 
-**Conclusion:** Safe zero-preedit for browser/Electron frontends is not
-currently achievable with the available frontend APIs and UniKey engine
-interface. The client-preedit fallback with underline is retained as the safe
-default for all browser/Electron contexts.
+**Conclusion (tested X11 matrix):** Safe zero-preedit for browser/Electron
+frontends is not currently achievable with the frontend capabilities observed
+in the tested environment and the current UniKey engine interface. The
+client-preedit fallback with underline is retained as the safe default for
+all browser/Electron contexts in this matrix. Wayland and other environments
+require separate evaluation.
 
 ## Deterministic test profiles
 
 The integration harness models the following browser profiles:
 
-| Profile | SurroundingText | Behavior |
+| Profile | SurroundingText (observed) | Behavior |
 | --- | --- | --- |
-| `firefox-x11` | Never available | Client-preedit fallback, burst-safe |
+| `firefox-x11` | Not advertised in test matrix | Client-preedit fallback, burst-safe |
 | `firefox-wayland` | Pending | Wayland session required |
-| `chromium-x11` | Never available | Client-preedit fallback, burst-safe |
+| `chromium-x11` | Not advertised in test matrix | Client-preedit fallback, burst-safe |
 | `chromium-wayland` | Pending | Wayland session required |
-| `electron-x11` | Never available | Client-preedit fallback, burst-safe |
+| `electron-x11` | Not advertised in test matrix | Client-preedit fallback, burst-safe |
 | `electron-wayland` | Pending | Wayland session required |
 
 Browser profiles are tested via `PreeditFallbackController` with the full
@@ -186,9 +199,9 @@ See `tests/integration/browser_capability_tests.cpp` and
 
 ## Limitations
 
-- Browser/Electron capability invariants are documented for Debian 13.6 / KDE
-  Plasma X11. Other distributions, desktop environments, or compositors may
-  differ.
+- Browser/Electron capability observations are documented for Debian 13.6 / KDE
+  Plasma X11 only. Other distributions, desktop environments, compositors, or
+  Wayland sessions may differ and remain unverified.
 - Wayland browser profiles are marked `pending`; see
   `docs/wayland-validation.md`.
 - The policy never hardcodes process names to force a specific path.

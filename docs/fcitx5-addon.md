@@ -87,9 +87,12 @@ Chrome, and Firefox ESR on KDE/X11. Direct zero-preedit was observed in the
 tested Qt and GTK contexts; XIM and browser/Electron contexts used fallback.
 This is still a limited environment matrix, not a production-readiness claim.
 
-Browser contexts use the client-preedit fallback because they do not expose
-the `SurroundingText` capability. See `docs/browser-input-policy.md` for the
-detailed capability analysis and input-path policy state machine.
+In the tested Debian 13.6 / KDE Plasma / X11 matrix, browser and Electron
+contexts used the client-preedit fallback because they did not advertise the
+`SurroundingText` capability to Fcitx. See `docs/browser-input-policy.md` for
+the capability analysis and input-path policy state machine. Wayland or other
+environments may produce different capability signals and are not yet
+verified.
 
 Wayland has not been tested. See `docs/wayland-validation.md` for the manual
 validation checklist and environment-check script.
