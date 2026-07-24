@@ -39,6 +39,13 @@ The optional `src/fcitx5/` addon maps Fcitx events into the same controller and
 keeps one state object per Fcitx input context. It is an experimental Telex
 MVP, not a supported production frontend.
 
+Each Fcitx context selects one application path on its first processable key.
+Reliable surrounding-text contexts use direct replacement; contexts without
+that capability retain a client-preedit fallback. A direct context may demote
+after capability loss, but a preedit context is never promoted in place. This
+prevents asynchronous frontend updates from overlapping the first direct
+replacement.
+
 The original proposal and boundary rationale remain in
 [linux-adapter-design.md](linux-adapter-design.md). Current test semantics and
 the addon limitations are documented in

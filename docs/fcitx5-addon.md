@@ -50,8 +50,12 @@ the backend requests the minimum surrounding-text deletion and commits the
 replacement in the same synchronous controller transaction. Cursor movement,
 focus changes, reset events, and unhandled Backspace clear composition state.
 
-The default path has no client preedit and therefore no underline. Fcitx
-preedit is not implemented as a fallback in this MVP.
+An input context with usable surrounding-text capability on its first key
+uses direct commit with no client preedit and therefore no underline. A
+context without that capability uses the safe preedit fallback for its entire
+lifespan. Frontends may display that client preedit with an underline. The
+addon never promotes a live preedit context into direct mode,
+because a frontend may still be applying an asynchronous preedit update.
 
 ## Safety fallback
 
@@ -65,8 +69,9 @@ It does not synthesize Backspace, sleep, retry indefinitely, use a socket
 daemon, or provide a uinput fallback.
 
 Fcitx delete/commit methods are synchronous requests on its event thread and
-do not acknowledge application-side mutation. Firefox/Electron behavior still
-requires manual verification against real frontends.
+do not acknowledge application-side mutation. See
+[real-application-validation.md](real-application-validation.md) for the
+tested frontend matrix and the reason Firefox remains on fallback.
 
 ## Verification status
 
@@ -77,13 +82,10 @@ Automated:
 - controller tests for immediate, delayed, stale, duplicate, reordered,
   dropped, failure, reset, burst, and sanitizer profiles.
 
-Not yet manually verified in this milestone:
-
-- terminal application;
-- VSCode;
-- Firefox;
-- Chromium/Electron;
-- representative GTK and Qt text fields.
+Controlled desktop validation has covered xterm, KWrite, Zenity, VSCode,
+Chrome, and Firefox ESR on KDE/X11. Direct zero-preedit was observed in the
+tested Qt and GTK contexts; XIM and browser/Electron contexts used fallback.
+This is still a limited environment matrix, not a production-readiness claim.
 
 No GUI configuration, VNI/VIQR selection, macros, legacy charset output,
 uinput, distro package, or system-wide Wayland protocol integration is
