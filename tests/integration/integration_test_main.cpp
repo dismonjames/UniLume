@@ -26,6 +26,8 @@ int main(int argc, char **argv)
         runTransactionTests(assertions);
     } else if (suite == "preedit-fallback") {
         runPreeditFallbackTests(assertions);
+    } else if (suite == "browser-capability") {
+        runBrowserCapabilityTests(assertions);
     } else if (suite == "mode-policy") {
         runInputModePolicyTests(assertions);
     } else if (suite == "burst") {

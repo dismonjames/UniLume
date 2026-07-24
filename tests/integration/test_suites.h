@@ -12,6 +12,7 @@ void runDuplicateTests(Assertions &assertions);
 void runTransactionTests(Assertions &assertions);
 void runPreeditFallbackTests(Assertions &assertions);
 void runInputModePolicyTests(Assertions &assertions);
+void runBrowserCapabilityTests(Assertions &assertions);
 void runBurstTests(Assertions &assertions);
 void runSoakSmokeTests(Assertions &assertions);
 
