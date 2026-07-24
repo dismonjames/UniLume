@@ -5,18 +5,20 @@
 namespace unilume::platform {
 
 enum class InputPath {
-    preedit,
+    unknown,
     direct,
+    preedit,
 };
 
 class InputModePolicy {
 public:
     InputPath observe(bool direct_available);
+    void resetForCompositionEnd();
+    void reset();
     [[nodiscard]] InputPath path() const;
 
 private:
-    InputPath path_{InputPath::preedit};
-    bool initialized_{};
+    InputPath path_{InputPath::unknown};
 };
 
 } // namespace unilume::platform

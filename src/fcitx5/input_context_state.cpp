@@ -42,6 +42,7 @@ void InputContextState::keyEvent(fcitx::KeyEvent &event)
         }
         direct_controller_.resetForFocus();
         backend_.reset();
+        mode_policy_.resetForCompositionEnd();
         return;
     }
     if (mode_policy_.path() == platform::InputPath::preedit &&
@@ -49,6 +50,7 @@ void InputContextState::keyEvent(fcitx::KeyEvent &event)
         diagnostics_.recordReset(
             TraceResetReason::control_shortcut);
         commitPendingPreedit();
+        mode_policy_.resetForCompositionEnd();
         return;
     }
     if (mode_policy_.path() == platform::InputPath::preedit) {
@@ -77,6 +79,7 @@ void InputContextState::reset()
     preedit_controller_.reset();
     backend_.reset();
     clearPreedit();
+    mode_policy_.reset();
 }
 
 void InputContextState::synchronizeMode()
@@ -108,6 +111,9 @@ void InputContextState::handlePreeditEvent(
         preedit_controller_.submit(mapped.input());
     if (!action.commit_text.empty()) {
         input_context_.commitString(std::string(action.commit_text));
+    }
+    if (preedit_controller_.preedit().empty()) {
+        mode_policy_.resetForCompositionEnd();
     }
     updatePreedit();
     diagnostics_.recordPreedit(

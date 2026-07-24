@@ -54,6 +54,8 @@ set_target_properties(unilume_integration_test_support PROPERTIES
 )
 
 add_executable(unilume_integration_tests
+  integration/browser_capability_tests.cpp
+  integration/browser_input_session_tests.cpp
   integration/burst_tests.cpp
   integration/delayed_surrounding_text_tests.cpp
   integration/duplicate_text_tests.cpp
@@ -81,6 +83,8 @@ foreach(suite IN ITEMS
     duplicate
     transaction
     preedit-fallback
+    browser-capability
+    browser-input-session
     mode-policy
     burst
     soak-smoke
