@@ -87,6 +87,13 @@ Chrome, and Firefox ESR on KDE/X11. Direct zero-preedit was observed in the
 tested Qt and GTK contexts; XIM and browser/Electron contexts used fallback.
 This is still a limited environment matrix, not a production-readiness claim.
 
+Browser contexts use the client-preedit fallback because they do not expose
+the `SurroundingText` capability. See `docs/browser-input-policy.md` for the
+detailed capability analysis and input-path policy state machine.
+
+Wayland has not been tested. See `docs/wayland-validation.md` for the manual
+validation checklist and environment-check script.
+
 No GUI configuration, VNI/VIQR selection, macros, legacy charset output,
 uinput, distro package, or system-wide Wayland protocol integration is
 provided yet. Telex/UTF-8 is the only exposed addon mode.
