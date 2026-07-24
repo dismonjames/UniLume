@@ -24,6 +24,10 @@ int main(int argc, char **argv)
         runDuplicateTests(assertions);
     } else if (suite == "transaction") {
         runTransactionTests(assertions);
+    } else if (suite == "preedit-fallback") {
+        runPreeditFallbackTests(assertions);
+    } else if (suite == "mode-policy") {
+        runInputModePolicyTests(assertions);
     } else if (suite == "burst") {
         runBurstTests(assertions);
     } else if (suite == "soak-smoke") {

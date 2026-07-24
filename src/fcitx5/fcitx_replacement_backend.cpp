@@ -16,14 +16,23 @@ FcitxReplacementBackend::FcitxReplacementBackend(
 {
 }
 
+bool FcitxReplacementBackend::supportsDirectReplacement() const
+{
+    return input_context_.capabilityFlags().test(
+        fcitx::CapabilityFlag::SurroundingText);
+}
+
 bool FcitxReplacementBackend::canReplace(
     std::int32_t delete_before_cursor) const
 {
+    observation_.delete_before_cursor = delete_before_cursor;
+    observation_.surrounding_available =
+        supportsDirectReplacement();
+    observation_.cursor_valid = true;
     if (delete_before_cursor <= 0) {
         return true;
     }
-    if (!input_context_.capabilityFlags().test(
-            fcitx::CapabilityFlag::SurroundingText)) {
+    if (!supportsDirectReplacement()) {
         return false;
     }
     const auto delete_count =
@@ -34,6 +43,9 @@ bool FcitxReplacementBackend::canReplace(
 
     const fcitx::SurroundingText &surrounding =
         input_context_.surroundingText();
+    observation_.cursor_valid =
+        surrounding.isValid() &&
+        surrounding.anchor() == surrounding.cursor();
     return surrounding.isValid() &&
            surrounding.anchor() == surrounding.cursor() &&
            surrounding.cursor() >= delete_count &&
@@ -46,6 +58,7 @@ FcitxReplacementBackend::requestReplacement(
     std::int32_t delete_before_cursor,
     std::string_view commit_text)
 {
+    observation_.commit_bytes = commit_text.size();
     if (sequence_id <= last_sequence_id_ ||
         delete_before_cursor < 0 ||
         !core::isValidUtf8(commit_text) ||
@@ -81,6 +94,13 @@ bool FcitxReplacementBackend::cancel(std::uint64_t)
 void FcitxReplacementBackend::reset()
 {
     committed_characters_ = 0;
+    observation_ = {};
+}
+
+const ReplacementObservation &
+FcitxReplacementBackend::lastObservation() const
+{
+    return observation_;
 }
 
 std::size_t FcitxReplacementBackend::utf8Characters(std::string_view text)

@@ -4,25 +4,65 @@
 
 #include "fcitx_key_mapper.h"
 
+#include <fcitx-utils/capabilityflags.h>
+#include <fcitx/inputpanel.h>
+#include <fcitx/text.h>
+#include <fcitx/userinterface.h>
+#include <string>
+
 namespace unilume::fcitx5 {
 
 InputContextState::InputContextState(fcitx::InputContext &input_context)
-    : backend_(input_context), controller_(backend_)
+    : input_context_(input_context),
+      backend_(input_context),
+      direct_controller_(backend_)
 {
+}
+
+InputContextState::~InputContextState()
+{
+    diagnostics_.flush();
 }
 
 void InputContextState::keyEvent(fcitx::KeyEvent &event)
 {
+    const std::uint64_t started_at_ns = diagnostics_.beginEvent();
     const MappedKey mapped = mapKeyEvent(event);
     if (mapped.status == MappingStatus::ignored) {
         return;
     }
+    // Release events may expose transient capability flags in some X11
+    // frontends. Only an event that can reach the engine may change the
+    // direct-commit policy.
+    synchronizeMode();
     if (mapped.status == MappingStatus::reset) {
-        reset();
+        diagnostics_.recordReset(TraceResetReason::navigation);
+        if (mode_policy_.path() == platform::InputPath::preedit) {
+            commitPendingPreedit();
+        }
+        direct_controller_.resetForFocus();
+        backend_.reset();
+        return;
+    }
+    if (mode_policy_.path() == platform::InputPath::preedit &&
+        mapped.has_control_modifier) {
+        diagnostics_.recordReset(
+            TraceResetReason::control_shortcut);
+        commitPendingPreedit();
+        return;
+    }
+    if (mode_policy_.path() == platform::InputPath::preedit) {
+        handlePreeditEvent(event, mapped, started_at_ns);
         return;
     }
 
-    const core::SubmissionStatus status = controller_.submit(mapped.input());
+    const core::SubmissionStatus status =
+        direct_controller_.submit(mapped.input());
+    diagnostics_.recordDirect(
+        status,
+        direct_controller_.metrics(),
+        backend_.lastObservation(),
+        started_at_ns);
     if (status != core::SubmissionStatus::unhandled) {
         event.filterAndAccept();
     } else if (mapped.kind == core::KeyKind::backspace) {
@@ -32,8 +72,93 @@ void InputContextState::keyEvent(fcitx::KeyEvent &event)
 
 void InputContextState::reset()
 {
-    controller_.resetForFocus();
+    diagnostics_.recordReset(TraceResetReason::focus);
+    direct_controller_.resetForFocus();
+    preedit_controller_.reset();
     backend_.reset();
+    clearPreedit();
+}
+
+void InputContextState::synchronizeMode()
+{
+    const platform::InputPath previous = mode_policy_.path();
+    const platform::InputPath current = mode_policy_.observe(
+        backend_.supportsDirectReplacement());
+    if (previous == current) {
+        return;
+    }
+    if (current == platform::InputPath::preedit) {
+        diagnostics_.recordReset(
+            TraceResetReason::capability_loss);
+        direct_controller_.resetForFocus();
+        backend_.reset();
+    }
+    preedit_controller_.reset();
+    clearPreedit();
+    diagnostics_.recordModeChange(
+        current == platform::InputPath::preedit);
+}
+
+void InputContextState::handlePreeditEvent(
+    fcitx::KeyEvent &event,
+    const MappedKey &mapped,
+    std::uint64_t started_at_ns)
+{
+    const core::PreeditAction action =
+        preedit_controller_.submit(mapped.input());
+    if (!action.commit_text.empty()) {
+        input_context_.commitString(std::string(action.commit_text));
+    }
+    updatePreedit();
+    diagnostics_.recordPreedit(
+        action,
+        backend_.supportsDirectReplacement(),
+        started_at_ns);
+    if (action.handled) {
+        event.filterAndAccept();
+    }
+}
+
+void InputContextState::commitPendingPreedit()
+{
+    const std::string_view pending = preedit_controller_.preedit();
+    if (!pending.empty()) {
+        input_context_.commitString(std::string(pending));
+    }
+    preedit_controller_.reset();
+    clearPreedit();
+}
+
+void InputContextState::updatePreedit()
+{
+    const std::string_view value = preedit_controller_.preedit();
+    fcitx::Text text;
+    const bool client_preedit =
+        input_context_.capabilityFlags().test(
+            fcitx::CapabilityFlag::Preedit);
+    if (!value.empty()) {
+        text.append(
+            std::string(value),
+            client_preedit ? fcitx::TextFormatFlag::Underline
+                           : fcitx::TextFormatFlag::NoFlag);
+    }
+    text.setCursor(value.size());
+    if (client_preedit) {
+        input_context_.inputPanel().setClientPreedit(text);
+    } else {
+        input_context_.inputPanel().setPreedit(text);
+    }
+    input_context_.updatePreedit();
+    input_context_.updateUserInterface(
+        fcitx::UserInterfaceComponent::InputPanel);
+}
+
+void InputContextState::clearPreedit()
+{
+    input_context_.inputPanel().reset();
+    input_context_.updatePreedit();
+    input_context_.updateUserInterface(
+        fcitx::UserInterfaceComponent::InputPanel);
 }
 
 } // namespace unilume::fcitx5
