@@ -69,6 +69,12 @@ tả trong [docs/integration-testing.md](docs/integration-testing.md).
 Kết quả cài user-local và kiểm tra ứng dụng desktop thực tế được ghi tại
 [docs/real-application-validation.md](docs/real-application-validation.md).
 
+Chính sách lựa chọn input path cho browser và phân tích zero-preedit được mô
+tả trong [docs/browser-input-policy.md](docs/browser-input-policy.md).
+
+Xác thực Wayland và checklist kiểm tra thủ công trong
+[docs/wayland-validation.md](docs/wayland-validation.md).
+
 ## Nguồn gốc và giấy phép
 
 Phần lớn code trong `src/` và tài liệu trong `docs/legacy/` đến từ x-unikey
